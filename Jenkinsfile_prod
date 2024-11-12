@@ -1,0 +1,49 @@
+pipeline {
+    agent { label params.Environment }
+    stages {
+        stage('Checkout') {
+	 agent none
+            steps {
+                checkout scm
+            }
+        }
+
+        stage ('set Env' ) {
+            steps {
+		sh 'echo $EnvVariables >./envfile'
+		sh 'echo $EnvVariables >./.env'
+		sh 'echo $EnvVariables >./env'
+           }
+       }
+
+
+        
+        stage('Install Dependencies and build') {
+    	agent {
+            docker {
+		reuseNode true
+                image 'node:18' // Use an appropriate Node.js version
+            }
+        }
+            steps {
+                sh 'npm install'
+                sh 'npm run build' // Modify as needed
+            }
+        }
+	stage ('build backup' ) {
+            steps {
+                sh 'sudo mkdir -p /apps/backup/tryon_$BUILD_NUMBER/'
+                sh 'sudo cp -r dist /apps/backup/tryon_$BUILD_NUMBER/.'
+           }
+       }
+        
+	stage ('compress and deploy to remote' ) {
+	    steps {
+
+		sh 'sudo rm -rf /var/www/html/tryon/*'
+      		sh 'sudo cp -r dist/* /var/www/html/tryon/.'
+		sh 'sudo systemctl restart nginx'
+           }
+       }
+    }
+}

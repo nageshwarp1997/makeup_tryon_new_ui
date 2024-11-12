@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Cosmetic Try-on</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Metropolis, sans-serif;
+      }
+      .customRangeDiv {
+        background: linear-gradient(
+          -90deg,
+          #fff 0%,
+          rgba(255, 255, 255, 0.1) 100%
+        );
+      }
+
+      .range-thumb::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        @apply w-[5px] h-[25px] rounded-sm bg-[#1A1A1A] cursor-pointer shadow-md;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Custom range thumb styling for Mozilla browsers */
+      .range-thumb::-moz-range-thumb {
+        @apply w-[5px] h-[25px]  bg-[#1A1A1A] rounded-full cursor-pointer shadow-md;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div
+      id="vid-container"
+      class="absolute transform translate-x-[50.75%] translate-y-[-100%] 2xl:translate-x-[49%] w-[63%] 2xl:w-[64.55%] h-[calc(100%-190px)] border-[12px] border-[#F9EDE366] rounded-[40px] flex justify-center items-center overflow-hidden"
+    >
+      <canvas
+        class="output_canvas absolute top-0 left-0 w-full h-full z-50"
+        id="output_canvas"
+      ></canvas>
+      <canvas
+        class="output_canvas absolute top-0 left-0 w-full h-full z-50"
+        id="output_canvas2"
+      ></canvas>
+      <video
+        id="webcam"
+        autoplay
+        playsinline
+        muted
+        class="absolute -top-[9%] left-0 w-full h-full z-40"
+      ></video>
+      <div
+        class="absolute -right-[10%] 2xl:-right-[12%] w-[30%] h-5 z-50 -rotate-90 rounded-md customRangeDiv"
+      >
+        <input
+          type="range"
+          min="0"
+          id="range"
+          max="100"
+          value="50"
+          class="w-full h-full appearance-none outline-none cursor-pointer range-thumb bg-transparent"
+        />
+      </div>
+    </div>
+
+    <script type="module" src="/src/App.tsx"></script>
+  </body>
+</html>
