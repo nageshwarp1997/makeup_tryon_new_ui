@@ -28,6 +28,7 @@ function Index(props: IndexProps) {
   const [displayOptions, setDisplayOptions] = useState<Option[]>(
     cosmeticsData.find((c) => c.name === "Lipstick")?.shades || []
   );
+  const [selectedOptionId, setSelectedOptionId] = useState<number>(0);
   // cosmeticsData.find((c) => c.name === "Lipstick")?.shades || []
   // const [selectedOptionImages, setSelectedOptionImages] = useState<Image[]>([]);
   const [state, setState] = useState<typeof window.makeupState>({
@@ -245,6 +246,7 @@ function Index(props: IndexProps) {
                               }`}
                               key={option?.id}
                               onClick={() => {
+                                setSelectedOptionId(0);
                                 if (!option?.disabled) {
                                   handleOptionsSelection(
                                     cosmetic?.name,
@@ -368,13 +370,14 @@ function Index(props: IndexProps) {
                       <div
                         key={index}
                         onClick={() => {
+                          setSelectedOptionId(option.id); // Track the selected option
                           setState((prevState) => ({
                             ...prevState,
                             [option.label]: option.name,
                           }));
                         }}
                         className={`border flex items-center justify-center w-[48px] h-[48px] cursor-pointer rounded-full p-1 ${
-                          option.id === index + 1
+                          selectedOptionId === option.id
                             ? "border-[2px] border-[#FFFFFF90] bg-[#FFFFFF]"
                             : "border-[2px] border-[#FFFFFF30] bg-[#FFFFFF90]"
                         }`}

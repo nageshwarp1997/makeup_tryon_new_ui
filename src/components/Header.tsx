@@ -7,10 +7,16 @@ const Header = () => {
         className="h-12 w-auto"
       />
       <div className="flex justify-end items-center gap-4 text-[16px]">
-        <button className="py-2 px-[18px] font-semibold font-metropolis leading-[27px]">
+        <a
+          href="https://ctruh.com/"
+          target="_blank"
+          className="py-2 px-[18px] font-semibold font-metropolis leading-[27px]"
+        >
           Visit CTRUH
-        </button>
-        <div
+        </a>
+        <a
+          href="https://www.ctruh.com/about/company/contact-us"
+          target="blank"
           className="py-3 px-5 rounded-2xl border-[2px] border-tryon-black text-white font-semibold font-metropolis"
           style={{
             background:
@@ -19,7 +25,7 @@ const Header = () => {
           }}
         >
           Book a FREE Demo
-        </div>
+        </a>
       </div>
     </div>
   );

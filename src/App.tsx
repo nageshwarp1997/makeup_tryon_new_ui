@@ -6,5 +6,7 @@ import { startTryon, setMakeupState, takeSnapShot } from "./main";
 await startTryon();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <Index setMakeupState={setMakeupState} takeSnapShot={takeSnapShot} />
+  <React.StrictMode>
+    <Index setMakeupState={setMakeupState} takeSnapShot={takeSnapShot} />
+  </React.StrictMode>
 );

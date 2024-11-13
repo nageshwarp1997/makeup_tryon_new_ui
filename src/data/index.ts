@@ -77,14 +77,7 @@ const cosmeticsData: CosmeticData[] = [
         id: 1,
         name: "EYE BROW",
         value: "eyebrow",
-        images: [
-          // {
-          //   id: 1,
-          //   name: "pattern1",
-          //   label: "eyebrow",
-          //   url: "/eyeshadow.jpg",
-          // },
-        ],
+        images: [],
       },
       {
         id: 2,
