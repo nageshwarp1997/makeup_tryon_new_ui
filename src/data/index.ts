@@ -1,22 +1,19 @@
 // Define types
-export type Image = {
+
+export type Option = {
   id: number;
+  label: string;
   name: string;
-  url: string;
-}
+  color?: string;
+  url?: string;
+};
 
 type CosmeticOption = {
   id: number;
   name: string;
-  images?: Image[]; // Images are optional
+  value: string;
+  images?: Option[]; // Images are optional
   disabled?: boolean; // Disabled is optional
-};
-
-export type Shade = {
-  id: number;
-  label: string;
-  color: string;
-  name: string;
 };
 
 type CosmeticData = {
@@ -24,7 +21,7 @@ type CosmeticData = {
   name: string;
   icon: string;
   options: CosmeticOption[];
-  shades: Shade[];
+  shades: Option[];
   path: string;
 };
 
@@ -38,21 +35,25 @@ const cosmeticsData: CosmeticData[] = [
       {
         id: 1,
         name: "MATTE",
+        value: "MATTE",
         images: [],
       },
       {
         id: 2,
         name: "GLOSSY",
+        value: "GLOSSY",
         images: [],
       },
       {
         id: 3,
         name: "CRAYON",
+        value: "CRAYON",
         images: [],
       },
       {
         id: 4,
         name: "SHIMMER",
+        value: "SHIMMER",
         images: [],
       },
     ],
@@ -75,28 +76,34 @@ const cosmeticsData: CosmeticData[] = [
       {
         id: 1,
         name: "EYE BROW",
-        images: [{ id: 1, name: "pattern1", url: "/eyeshadow.jpg" }],
+        value: "eyebrow",
+        images: [
+          { id: 1, name: "pattern1", label: "pattern1", url: "/eyeshadow.jpg" },
+        ],
       },
       {
         id: 2,
         name: "EYE LINER",
+        value: "eyeliner",
         images: [
-          { id: 1, name: "pattern1", url: "Eyeliner_2.png" },
-          { id: 2, name: "pattern2", url: "Eyeliner_3.png" },
-          { id: 3, name: "pattern3", url: "Eyeliner_1.png" },
+          { id: 1, name: "pattern1", label: "pattern1", url: "Eyeliner_2.png" },
+          { id: 2, name: "pattern2", label: "pattern2", url: "Eyeliner_3.png" },
+          { id: 3, name: "pattern3", label: "pattern3", url: "Eyeliner_1.png" },
         ],
       },
       {
         id: 3,
         name: "EYE SHADOW",
+        value: "eyeshadow",
         images: [],
       },
       {
         id: 4,
         name: "KAJAL",
+        value: "kajal",
         images: [
-          { id: 1, name: "pattern1", url: "Kajal_1.png" },
-          { id: 2, name: "pattern2", url: "Kajal_2.png" },
+          { id: 1, name: "pattern1", label: "pattern1", url: "Kajal_1.png" },
+          { id: 2, name: "pattern2", label: "pattern2", url: "Kajal_2.png" },
         ],
       },
     ],
@@ -146,12 +153,14 @@ const cosmeticsData: CosmeticData[] = [
       {
         id: 1,
         name: "FOUNDATION",
+        value: "foundation",
         images: [],
         disabled: true, // Optional property
       },
       {
         id: 2,
         name: "BLUSH",
+        value: "blush",
         images: [],
         disabled: true, // Optional property
       },
