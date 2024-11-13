@@ -19,13 +19,15 @@ interface IndexProps {
 function Index(props: IndexProps) {
   const { setMakeupState } = props;
 
-  const [selectedCosmetic, setSelectedCosmetic] = useState<string>(""); // "Lipstick", "Eye", "Face"
+  const [selectedCosmetic, setSelectedCosmetic] = useState<string>("Lipstick"); // "Lipstick", "Eye", "Face"
   // const [selectedCosmetics, setSelectedCosmetics] = useState<string[]>([]);
   // const [selectedOptionsMap, setSelectedOptionsMap] = useState<{
   //   [cosmeticName: string]: string;
   // }>({}); // Map to track selected options for each cosmetic
   // const [selectedShades, setSelectedShades] = useState<Shade[]>([]);
-  const [displayOptions, setDisplayOptions] = useState<Option[]>([]);
+  const [displayOptions, setDisplayOptions] = useState<Option[]>(
+    cosmeticsData.find((c) => c.name === "Lipstick")?.shades || []
+  );
   // cosmeticsData.find((c) => c.name === "Lipstick")?.shades || []
   // const [selectedOptionImages, setSelectedOptionImages] = useState<Image[]>([]);
   const [state, setState] = useState<typeof window.makeupState>({
@@ -37,8 +39,8 @@ function Index(props: IndexProps) {
     kajal: false,
     foundation: false,
     blush: false,
-    eyeLinerPattern: "pattern1",
-    KajalPattern: "pattern1",
+    eyeLinerPattern: "",
+    KajalPattern: "",
     lipColor: [161, 46, 42, 50],
     eyebrowColor: [0, 0, 0, 15],
     eyeshadowColor: [179, 44, 39, 20],
@@ -60,6 +62,53 @@ function Index(props: IndexProps) {
   //   });
   //   setSelectedCosmetic(cosmeticName); // Update the selected cosmetic
   // };
+
+  useEffect(() => {
+    let rangeContainer = document.getElementById(
+      "range-container"
+    ) as HTMLInputElement;
+    let rangeInput = document.getElementById("range") as HTMLInputElement;
+    if (selectedCosmetic === "Lipstick") {
+      rangeContainer.style.display = "block";
+
+      switch (state.lipsType) {
+        case "MATTE": {
+          rangeInput.value = "50";
+          setState((prevState) => {
+            return { ...prevState, rangeValue: 0.5 };
+          });
+          break;
+        }
+        case "SHIMMER":
+        case "GLOSSY": {
+          rangeInput.value = "80";
+          setState((prevState) => {
+            return { ...prevState, rangeValue: 0.8 };
+          });
+          break;
+        }
+        case "CRAYON": {
+          rangeInput.value = "40";
+          setState((prevState) => {
+            return { ...prevState, rangeValue: 0.4 };
+          });
+          break;
+        }
+
+        default: {
+          rangeInput.value = "50";
+          setState((prevState) => {
+            return { ...prevState, rangeValue: 0.5 };
+          });
+        }
+      }
+    } else {
+      rangeContainer.style.display = "none";
+      setState((prevState) => {
+        return { ...prevState, rangeValue: 0.5 };
+      });
+    }
+  }, [selectedCosmetic, state.lipsType]);
 
   useEffect(() => {
     setMakeupState(state);
@@ -130,7 +179,7 @@ function Index(props: IndexProps) {
   // console.log("Selected cosmetic:", selectedCosmetic);
   // console.log("Selected options map:", selectedOptionsMap);
   console.log("Display Options:", displayOptions);
-  console.log("State:", state);
+  console.log("State:", state.lipColor);
   // console.log("Selected Option Images:", selectedOptionImages);
 
   return (
@@ -140,14 +189,14 @@ function Index(props: IndexProps) {
       {/* Body */}
       <div className="w-full px-[4.5rem] flex justify-between gap-10 mt-5">
         {/* Left part */}
-        <div className="min-w-[340px] max-w-[340px] w-full h-[calc(100vh-190px)] flex flex-col items-center justify-between gap-2.5 text-[#404040]">
+        <div className="min-w-[340px] max-w-[340px] 2xl:min-[450px] 2xl:max-w-[450px] w-full h-[calc(100vh-190px)] flex flex-col items-center justify-between gap-2.5  text-[#404040]">
           <div className="flex flex-col items-center gap-5 self-stretch h-full max-h-[60vh] overflow-y-scroll scrollbar-none">
             <div className="w-full flex flex-col gap-4">
               {cosmeticsData &&
                 cosmeticsData.map((cosmetic) => (
                   <Fragment key={cosmetic?.id}>
                     <div
-                      className={`w-full flex py-3 px-4 justify-between items-center self-stretch rounded-xl cursor-pointer ${
+                      className={`w-full flex py-3 px-4 2xl:py-4 2xl:px-7 justify-between items-center self-stretch rounded-xl cursor-pointer ${
                         cosmetic?.name === selectedCosmetic
                           ? "active bg-[#F9E5D4] border-[2px] border-[#F9E5D4]"
                           : "border-[2px] border-[#F9EDE3] bg-white"
@@ -158,11 +207,11 @@ function Index(props: IndexProps) {
                         // handleCosmeticsSelection(cosmetic?.name);
                       }}
                     >
-                      <span className="flex items-center gap-3">
+                      <span className="flex items-center gap-3 2xl:gap-5">
                         <img
                           src={cosmetic?.icon}
                           alt={cosmetic?.name}
-                          className="w-6 h-6"
+                          className="w-6 h-6 2xl:w-8 2xl:h-8"
                         />
                         <p className="font-metropolis text-[18px] font-semibold leading-[27px]">
                           {cosmetic?.name}
@@ -189,31 +238,35 @@ function Index(props: IndexProps) {
                                 isSelected
                                   ? "border-[2px] border-[#D99D73] text-[#D99D73]"
                                   : "border-[2px] border-[#F9EDE3]"
-                              } bg-[#FFFFFF80]`}
-                              style={{ opacity: option?.disabled ? 0.5 : 1 }} // remove this line when Face Implementation is done
+                              } bg-[#FFFFFF80] ${
+                                option?.disabled
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : "opacity-100 cursor-pointer"
+                              }`}
                               key={option?.id}
                               onClick={() => {
-                                !option?.disabled &&
+                                if (!option?.disabled) {
                                   handleOptionsSelection(
                                     cosmetic?.name,
                                     option?.name
                                   );
-                                if (selectedCosmetic === "Lipstick") {
-                                  setState((prevState) => ({
-                                    ...prevState,
-                                    lipsType: option.value,
-                                  }));
-                                } else {
-                                  setState((prevState) => ({
-                                    ...prevState,
-                                    eyebrow: false,
-                                    eyeshadow: false,
-                                    eyeliner: false,
-                                    kajal: false,
-                                    foundation: false,
-                                    blush: false,
-                                    [option.value]: true,
-                                  }));
+                                  if (selectedCosmetic === "Lipstick") {
+                                    setState((prevState) => ({
+                                      ...prevState,
+                                      lipsType: option.value,
+                                    }));
+                                  } else {
+                                    setState((prevState) => ({
+                                      ...prevState,
+                                      eyebrow: false,
+                                      eyeshadow: false,
+                                      eyeliner: false,
+                                      kajal: false,
+                                      foundation: false,
+                                      blush: false,
+                                      [option.value]: true,
+                                    }));
+                                  }
                                 }
                               }}
                             >
@@ -228,7 +281,7 @@ function Index(props: IndexProps) {
             </div>
           </div>
           <div
-            className={`w-full flex py-3 px-4  justify-between items-center self-stretch rounded-xl border-[2px] border-[#F9EDE3] bg-[#F9E5D4] cursor-pointer`}
+            className={`w-full flex py-3 px-4 2xl:py-4 2xl:px-7 justify-between items-center self-stretch rounded-xl border-[2px] border-[#F9EDE3] bg-[#F9E5D4] cursor-pointer`}
             onClick={() => {
               takeSnapShot();
             }}
@@ -241,14 +294,22 @@ function Index(props: IndexProps) {
         </div>
         {/* Right Part OR Video Section */}
         <div className="relative w-[70%] rounded-[40px] border-[12px] border-[#F9EDE3]">
+          <div className="absolute w-full h-full inset-0 overflow-hidden -z-1">
+            <img
+              src="/images/placeholderImage.png"
+              alt="Placeholder Image"
+              className="h-full object-cover rounded-[28px] bg-transparent object-center "
+            />
+          </div>
+
           <div className="absolute top-0 right-3 flex flex-col justify-between items-between h-full py-5 px-3">
             <span
-              className="flex justify-center items-center p-3 rounded-full bg-white z-50"
+              className="flex justify-center items-center p-3 rounded-full bg-white z-50 cursor-pointer"
               onClick={handleReset}
             >
               <ResetIcon />
             </span>
-            <span className="flex justify-center items-center p-3 rounded-full bg-white z-50">
+            <span className="flex justify-center items-center p-3 rounded-full bg-white z-[51] cursor-not-allowed opacity-50">
               <CompareIcon />
             </span>
           </div>
@@ -265,10 +326,12 @@ function Index(props: IndexProps) {
                         <div
                           key={index}
                           className={`flex items-center justify-center min-w-[48px] min-h-[48px] cursor-pointer rounded-full ${
-                            // selectedCosmetic === "Lipstick"
-                            state.lipColor === rgbaColor
-                              ? // : state.eyeshadowColor == shade.color
-                                "border-[2px] border-[#FFFFFF]"
+                            (
+                              selectedCosmetic === "Lipstick"
+                                ? state.lipColor.join("") === rgbaColor.join("")
+                                : state.eyeshadowColor === option.color
+                            )
+                              ? "border-[2px] border-[#FFFFFF]"
                               : "border-[2px] border-[#cecdcd]"
                           }`}
                           onClick={() => {
@@ -304,19 +367,12 @@ function Index(props: IndexProps) {
                     return (
                       <div
                         key={index}
-                        // onClick={() => {
-                        //   handleImageClick(image.name, index);
-                        //   if (selectedImageOption === index) {
-                        //     setSelectedImageOption(-1);
-                        //     setState((prevState) => ({
-                        //       ...prevState,
-                        //       [activeButton.split(" ").join("").toLowerCase()]:
-                        //         false,
-                        //     }));
-                        //   } else {
-                        //     setSelectedImageOption(index);
-                        //   }
-                        // }}
+                        onClick={() => {
+                          setState((prevState) => ({
+                            ...prevState,
+                            [option.label]: option.name,
+                          }));
+                        }}
                         className={`border flex items-center justify-center w-[48px] h-[48px] cursor-pointer rounded-full p-1 ${
                           option.id === index + 1
                             ? "border-[2px] border-[#FFFFFF90] bg-[#FFFFFF]"
@@ -334,6 +390,8 @@ function Index(props: IndexProps) {
               </div>
             </div>
           )}
+          <div className="absolute bottom-0 w-full bg-black h-10 blur-3xl -rotate-[8deg]"></div>
+          <div className="absolute bottom-0 w-full bg-black h-10 blur-3xl rotate-[8deg]"></div>
         </div>
       </div>
     </div>

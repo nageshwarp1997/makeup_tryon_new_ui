@@ -8,7 +8,7 @@ export type Option = {
   url?: string;
 };
 
-type CosmeticOption = {
+export type CosmeticOption = {
   id: number;
   name: string;
   value: string;
@@ -78,7 +78,12 @@ const cosmeticsData: CosmeticData[] = [
         name: "EYE BROW",
         value: "eyebrow",
         images: [
-          { id: 1, name: "pattern1", label: "pattern1", url: "/eyeshadow.jpg" },
+          // {
+          //   id: 1,
+          //   name: "pattern1",
+          //   label: "eyebrow",
+          //   url: "/eyeshadow.jpg",
+          // },
         ],
       },
       {
@@ -86,9 +91,24 @@ const cosmeticsData: CosmeticData[] = [
         name: "EYE LINER",
         value: "eyeliner",
         images: [
-          { id: 1, name: "pattern1", label: "pattern1", url: "Eyeliner_2.png" },
-          { id: 2, name: "pattern2", label: "pattern2", url: "Eyeliner_3.png" },
-          { id: 3, name: "pattern3", label: "pattern3", url: "Eyeliner_1.png" },
+          {
+            id: 1,
+            name: "pattern1",
+            label: "eyeLinerPattern",
+            url: "Eyeliner_2.png",
+          },
+          {
+            id: 2,
+            name: "pattern2",
+            label: "eyeLinerPattern",
+            url: "Eyeliner_3.png",
+          },
+          {
+            id: 3,
+            name: "pattern3",
+            label: "eyeLinerPattern",
+            url: "Eyeliner_1.png",
+          },
         ],
       },
       {
@@ -102,14 +122,34 @@ const cosmeticsData: CosmeticData[] = [
         name: "KAJAL",
         value: "kajal",
         images: [
-          { id: 1, name: "pattern1", label: "pattern1", url: "Kajal_1.png" },
-          { id: 2, name: "pattern2", label: "pattern2", url: "Kajal_2.png" },
+          {
+            id: 1,
+            name: "pattern1",
+            label: "KajalPattern",
+            url: "Kajal_1.png",
+          },
+          {
+            id: 2,
+            name: "pattern2",
+            label: "KajalPattern",
+            url: "Kajal_2.png",
+          },
         ],
       },
     ],
     shades: [
-      { id: 1, label: "Eyebrow Pencil - Black", color: "#000012", name: "all" },
-      { id: 2, label: "Eyebrow Pencil - Brown", color: "#2E0007", name: "all" },
+      {
+        id: 1,
+        label: "EyeShadow - Purple",
+        color: "#9C2455",
+        name: "eyeshadow",
+      },
+      {
+        id: 2,
+        label: "EyeShadow - DarkRed",
+        color: "#59130E",
+        name: "eyeshadow",
+      },
       { id: 3, label: "Eyebrow Pencil - Grey", color: "#808080", name: "all" },
       {
         id: 4,
@@ -130,18 +170,6 @@ const cosmeticsData: CosmeticData[] = [
         name: "eyeshadow",
       },
       { id: 7, label: "EyeShadow - Red", color: "#800000", name: "eyeshadow" },
-      {
-        id: 8,
-        label: "EyeShadow - Purple",
-        color: "#9C2455",
-        name: "eyeshadow",
-      },
-      {
-        id: 9,
-        label: "EyeShadow - DarkRed",
-        color: "#59130E",
-        name: "eyeshadow",
-      },
     ],
     path: "eyebrow.png",
   },
