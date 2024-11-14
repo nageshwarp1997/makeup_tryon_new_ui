@@ -907,7 +907,7 @@ export async function startTryon() {
         window.makeupState.eyebrowColor,
         right_eyebrow_indices,
         left_eyebrow_indices,
-        window.makeupState.rangeValue
+        0.5 // default value of range for eyebrow
       );
     }
     if (window.makeupState.eyeshadow) {
@@ -917,7 +917,7 @@ export async function startTryon() {
         window.makeupState.eyeshadowColor,
         right_eyeshadow_indices,
         left_eyeshadow_indices,
-        window.makeupState.rangeValue
+        0.15 // default value of range for eyeshadow
       );
       // const mask = cv.Mat.zeros(
       //   canvasElement2.height,
