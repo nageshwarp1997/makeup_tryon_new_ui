@@ -70,7 +70,6 @@ const cosmeticsData: CosmeticData[] = [
       { id: 5, label: "Lipstick - Red", color: "#800000", name: "" },
       { id: 6, label: "Lipstick - Purple", color: "#9C2455", name: "" },
       { id: 7, label: "Lipstick - DarkRed", color: "#59130E", name: "" },
-      { id: 8, label: "Lipstick - Maroon", color: "#800000", name: "" },
     ],
     path: "lipstick.png",
   },

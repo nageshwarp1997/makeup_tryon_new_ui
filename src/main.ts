@@ -886,7 +886,7 @@ export async function startTryon() {
           },
           window.makeupState.rangeValue
         );
-      } else {
+      } else if (window.makeupState.lipsType == "matte") {
         applyOnLips(
           landmark.faceLandmarks[0],
           ctx,

@@ -19,21 +19,12 @@ interface IndexProps {
 function Index(props: IndexProps) {
   const { setMakeupState } = props;
 
-  const [selectedCosmetic, setSelectedCosmetic] = useState<string>("Lipstick"); // "Lipstick", "Eye", "Face"
-  // const [selectedCosmetics, setSelectedCosmetics] = useState<string[]>([]);
-  // const [selectedOptionsMap, setSelectedOptionsMap] = useState<{
-  //   [cosmeticName: string]: string;
-  // }>({}); // Map to track selected options for each cosmetic
-  // const [selectedShades, setSelectedShades] = useState<Shade[]>([]);
-  const [displayOptions, setDisplayOptions] = useState<Option[]>(
-    cosmeticsData.find((c) => c.name === "Lipstick")?.shades || []
-  );
+  const [selectedCosmetic, setSelectedCosmetic] = useState<string>(""); // "Lipstick", "Eye", "Face"
+  const [displayOptions, setDisplayOptions] = useState<Option[]>([]);
   const [selectedOptionId, setSelectedOptionId] = useState<number>(0);
-  // cosmeticsData.find((c) => c.name === "Lipstick")?.shades || []
-  // const [selectedOptionImages, setSelectedOptionImages] = useState<Image[]>([]);
   const [state, setState] = useState<typeof window.makeupState>({
     lips: true,
-    lipsType: "matte",
+    lipsType: "",
     eyebrow: false,
     eyeshadow: false,
     eyeliner: false,
@@ -42,27 +33,48 @@ function Index(props: IndexProps) {
     blush: false,
     eyeLinerPattern: "",
     KajalPattern: "",
-    lipColor: [161, 46, 42, 50],
+    lipColor: [0, 0, 0, 0],
     eyebrowColor: [0, 0, 0, 15],
     eyeshadowColor: [179, 44, 39, 20],
   } as typeof window.makeupState);
-  
-  // Effects
-  // useEffect(() => {
-  //   const cosmetic = cosmeticsData.find((c) => c.name === selectedCosmetic);
-  //   setSelectedShades(cosmetic?.shades || []);
-  // }, [selectedCosmetic]);
 
-  // const handleCosmeticsSelection = (cosmeticName: string) => {
-  //   setSelectedCosmetics((prev) => {
-  //     if (prev.includes(cosmeticName)) {
-  //       return prev.filter((item) => item !== cosmeticName);
-  //     } else {
-  //       return [...prev, cosmeticName];
-  //     }
-  //   });
-  //   setSelectedCosmetic(cosmeticName); // Update the selected cosmetic
-  // };
+  const hexToRGBA = (hex: string) => {
+    let r = 0,
+      g = 0,
+      b = 0,
+      a = 100;
+
+    if (hex.length === 7) {
+      r = parseInt(hex.slice(1, 3), 16);
+      g = parseInt(hex.slice(3, 5), 16);
+      b = parseInt(hex.slice(5, 7), 16);
+    }
+
+    return [r, g, b, a];
+  };
+
+  useEffect(() => {
+    if (selectedCosmetic === "Lipstick") {
+      const cosmetic = cosmeticsData.find((c) => c.name === selectedCosmetic);
+      const lipColor = hexToRGBA(
+        cosmetic?.shades[0]?.color as string
+      ) as ColorTuple;
+      setState((prevState) => {
+        return { ...prevState, lipColor: lipColor };
+      });
+    }
+  }, [state.lipsType]);
+
+  useEffect(() => {
+    if (selectedCosmetic === "Eye") {
+      const cosmetic = cosmeticsData.find((c) => c.name === selectedCosmetic);
+      const selectedOption = cosmetic?.options.find(
+        (o) => o.name === "eye shadow"
+      );
+      console.log("selectedOption", selectedOption);
+      console.log("cosmetic", cosmetic);
+    }
+  }, [selectedCosmetic]);
 
   useEffect(() => {
     let rangeContainer = document.getElementById(
@@ -116,19 +128,15 @@ function Index(props: IndexProps) {
   }, [state]);
 
   const handleOptionsSelection = (cosmeticName: string, optionName: string) => {
-    // setSelectedOptionsMap((prev) => ({
-    //   ...prev,
-    //   [cosmeticName]: optionName, // Update the selected option for the specific cosmetic
-    // }));
-
     const cosmetic = cosmeticsData.find((c) => c.name === cosmeticName);
-    // setSelectedOptionImages(
-    //   cosmetic?.options.find((o) => o.name === optionName)?.images || []
-    // );
-    if (
-      selectedCosmetic === "Lipstick" ||
-      (selectedCosmetic === "Eye" && optionName === "eye shadow")
-    ) {
+
+    if (selectedCosmetic === "Lipstick") {
+      if (optionName === state.lipsType) {
+        setDisplayOptions([]);
+      } else {
+        setDisplayOptions(cosmetic?.shades || []);
+      }
+    } else if (selectedCosmetic === "Eye" && optionName === "eye shadow") {
       setDisplayOptions(cosmetic?.shades || []);
     } else {
       setDisplayOptions(
@@ -155,33 +163,11 @@ function Index(props: IndexProps) {
       eyeshadowColor: state.eyeshadowColor,
       rangeValue: 0.5,
     });
-    setSelectedCosmetic(""); // Reset selected cosmetics
-    // setSelectedOptionsMap({});
-    // setSelectedShades([]);
-    // setSelectedOptionImages([]);
+    setSelectedCosmetic("");
     setDisplayOptions([]);
   };
 
-  const hexToRGBA = (hex: string) => {
-    let r = 0,
-      g = 0,
-      b = 0,
-      a = 100;
-
-    if (hex.length === 7) {
-      r = parseInt(hex.slice(1, 3), 16);
-      g = parseInt(hex.slice(3, 5), 16);
-      b = parseInt(hex.slice(5, 7), 16);
-    }
-
-    return [r, g, b, a];
-  };
-
-  // console.log("Selected cosmetic:", selectedCosmetic);
-  // console.log("Selected options map:", selectedOptionsMap);
-  console.log("Display Options:", displayOptions);
-  console.log("State:", state.lipColor);
-  // console.log("Selected Option Images:", selectedOptionImages);
+  console.log("state", state);
 
   return (
     <div className="w-full h-full">
@@ -203,9 +189,20 @@ function Index(props: IndexProps) {
                           : "border-[2px] border-[#F9EDE3] bg-white"
                       }`}
                       onClick={() => {
-                        setSelectedCosmetic(cosmetic.name);
+                        setSelectedCosmetic(
+                          selectedCosmetic === cosmetic.name
+                            ? ""
+                            : cosmetic.name
+                        );
                         setDisplayOptions(cosmetic?.shades || []);
-                        // handleCosmeticsSelection(cosmetic?.name);
+                        setState((prevState) => ({
+                          ...prevState,
+                          lipsType:
+                            selectedCosmetic === cosmetic.name &&
+                            prevState.lipsType
+                              ? ""
+                              : "matte",
+                        }));
                       }}
                     >
                       <span className="flex items-center gap-3 2xl:gap-5">
@@ -246,7 +243,7 @@ function Index(props: IndexProps) {
                               }`}
                               key={option?.id}
                               onClick={() => {
-                                setSelectedOptionId(0);
+                                setSelectedOptionId(0); // try to do this thing without extra useState
                                 if (!option?.disabled) {
                                   handleOptionsSelection(
                                     cosmetic?.name,
@@ -255,19 +252,29 @@ function Index(props: IndexProps) {
                                   if (selectedCosmetic === "Lipstick") {
                                     setState((prevState) => ({
                                       ...prevState,
-                                      lipsType: option.value,
+                                      lipsType:
+                                        state.lipsType === option.value
+                                          ? ""
+                                          : option.value,
                                     }));
                                   } else {
-                                    setState((prevState) => ({
-                                      ...prevState,
-                                      eyebrow: false,
-                                      eyeshadow: false,
-                                      eyeliner: false,
-                                      kajal: false,
-                                      foundation: false,
-                                      blush: false,
-                                      [option.value]: true,
-                                    }));
+                                    if (
+                                      ["eyeliner", "kajal"].includes(
+                                        option.value
+                                      )
+                                    ) {
+                                      setState((prevState) => ({
+                                        ...prevState,
+                                        [option.images[0].label]:
+                                          option?.images[0].name,
+                                        [option.value]: !state[option.value],
+                                      }));
+                                    } else {
+                                      setState((prevState) => ({
+                                        ...prevState,
+                                        [option.value]: !state[option.value],
+                                      }));
+                                    }
                                   }
                                 }
                               }}
@@ -361,6 +368,7 @@ function Index(props: IndexProps) {
                 </div>
               </div>
             )}
+
           {selectedCosmetic !== "Lipstick" && displayOptions.length > 0 && (
             <div className="z-50 w-full absolute left-0 bottom-4 px-[10%] py-4 flex flex-col">
               <div className="w-full overflow-x-scroll scrollbar-none flex justify-center gap-6">
@@ -377,7 +385,7 @@ function Index(props: IndexProps) {
                           }));
                         }}
                         className={`border flex items-center justify-center w-[48px] h-[48px] cursor-pointer rounded-full p-1 ${
-                          selectedOptionId === option.id
+                          state[option.label] === option.name
                             ? "border-[2px] border-[#FFFFFF90] bg-[#FFFFFF]"
                             : "border-[2px] border-[#FFFFFF30] bg-[#FFFFFF90]"
                         }`}
