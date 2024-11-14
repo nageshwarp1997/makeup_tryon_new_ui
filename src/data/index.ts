@@ -34,37 +34,43 @@ const cosmeticsData: CosmeticData[] = [
     options: [
       {
         id: 1,
-        name: "MATTE",
-        value: "MATTE",
+        name: "matte",
+        value: "matte",
         images: [],
       },
       {
         id: 2,
-        name: "GLOSSY",
-        value: "GLOSSY",
+        name: "glossy",
+        value: "glossy",
         images: [],
       },
       {
         id: 3,
-        name: "CRAYON",
-        value: "CRAYON",
+        name: "crayon",
+        value: "crayon",
         images: [],
       },
       {
         id: 4,
-        name: "SHIMMER",
-        value: "SHIMMER",
+        name: "shimmer",
+        value: "shimmer",
         images: [],
       },
     ],
     shades: [
-      { id: 1, label: "Lipstick - Maroon", color: "#800000", name: "" },
+      {
+        id: 1,
+        label: "Lipstick - Metallic Red (Default)",
+        color: "#A12E2A",
+        name: "",
+      },
       { id: 2, label: "Lipstick - DarkLavender", color: "#800080", name: "" },
       { id: 3, label: "Lipstick - Orange", color: "#AA0320", name: "" },
       { id: 4, label: "Lipstick - Maroonpink", color: "#7A2F48", name: "" },
       { id: 5, label: "Lipstick - Red", color: "#800000", name: "" },
       { id: 6, label: "Lipstick - Purple", color: "#9C2455", name: "" },
       { id: 7, label: "Lipstick - DarkRed", color: "#59130E", name: "" },
+      { id: 8, label: "Lipstick - Maroon", color: "#800000", name: "" },
     ],
     path: "lipstick.png",
   },
@@ -75,13 +81,13 @@ const cosmeticsData: CosmeticData[] = [
     options: [
       {
         id: 1,
-        name: "EYE BROW",
+        name: "eye brow",
         value: "eyebrow",
         images: [],
       },
       {
         id: 2,
-        name: "EYE LINER",
+        name: "eye liner",
         value: "eyeliner",
         images: [
           {
@@ -106,13 +112,13 @@ const cosmeticsData: CosmeticData[] = [
       },
       {
         id: 3,
-        name: "EYE SHADOW",
+        name: "eye shadow",
         value: "eyeshadow",
         images: [],
       },
       {
         id: 4,
-        name: "KAJAL",
+        name: "kajal",
         value: "kajal",
         images: [
           {
@@ -173,14 +179,14 @@ const cosmeticsData: CosmeticData[] = [
     options: [
       {
         id: 1,
-        name: "FOUNDATION",
+        name: "foundation",
         value: "foundation",
         images: [],
         disabled: true, // Optional property
       },
       {
         id: 2,
-        name: "BLUSH",
+        name: "blush",
         value: "blush",
         images: [],
         disabled: true, // Optional property

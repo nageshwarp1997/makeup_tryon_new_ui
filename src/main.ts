@@ -847,7 +847,7 @@ export async function startTryon() {
     ctx.drawImage(video, 0, 0, canvasElement2.width, canvasElement2.height);
 
     if (window.makeupState.lips) {
-      if (window.makeupState.lipsType === "GLOSSY") {
+      if (window.makeupState.lipsType === "glossy") {
         applyTextureOnLips(
           landmark.faceLandmarks[0],
           ctx,
@@ -860,7 +860,7 @@ export async function startTryon() {
           },
           window.makeupState.rangeValue
         );
-      } else if (window.makeupState.lipsType == "CRAYON") {
+      } else if (window.makeupState.lipsType == "crayon") {
         applyTextureOnLipsc(
           landmark.faceLandmarks[0],
           ctx,
@@ -873,7 +873,7 @@ export async function startTryon() {
           },
           window.makeupState.rangeValue
         );
-      } else if (window.makeupState.lipsType == "SHIMMER") {
+      } else if (window.makeupState.lipsType == "shimmer") {
         applyTextureOnLipss(
           landmark.faceLandmarks[0],
           ctx,
@@ -907,7 +907,7 @@ export async function startTryon() {
         window.makeupState.eyebrowColor,
         right_eyebrow_indices,
         left_eyebrow_indices,
-        0.5 // default value of range for eyebrow
+        0.3 // default value of range for eyebrow
       );
     }
     if (window.makeupState.eyeshadow) {
@@ -917,7 +917,7 @@ export async function startTryon() {
         window.makeupState.eyeshadowColor,
         right_eyeshadow_indices,
         left_eyeshadow_indices,
-        0.15 // default value of range for eyeshadow
+        0.2 // default value of range for eyeshadow
       );
       // const mask = cv.Mat.zeros(
       //   canvasElement2.height,

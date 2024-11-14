@@ -33,7 +33,7 @@ function Index(props: IndexProps) {
   // const [selectedOptionImages, setSelectedOptionImages] = useState<Image[]>([]);
   const [state, setState] = useState<typeof window.makeupState>({
     lips: true,
-    lipsType: "MATTE",
+    lipsType: "matte",
     eyebrow: false,
     eyeshadow: false,
     eyeliner: false,
@@ -46,7 +46,7 @@ function Index(props: IndexProps) {
     eyebrowColor: [0, 0, 0, 15],
     eyeshadowColor: [179, 44, 39, 20],
   } as typeof window.makeupState);
-
+  
   // Effects
   // useEffect(() => {
   //   const cosmetic = cosmeticsData.find((c) => c.name === selectedCosmetic);
@@ -73,22 +73,22 @@ function Index(props: IndexProps) {
       rangeContainer.style.display = "block";
 
       switch (state.lipsType) {
-        case "MATTE": {
+        case "matte": {
           rangeInput.value = "50";
           setState((prevState) => {
             return { ...prevState, rangeValue: 0.5 };
           });
           break;
         }
-        case "SHIMMER":
-        case "GLOSSY": {
+        case "shimmer":
+        case "glossy": {
           rangeInput.value = "80";
           setState((prevState) => {
             return { ...prevState, rangeValue: 0.8 };
           });
           break;
         }
-        case "CRAYON": {
+        case "crayon": {
           rangeInput.value = "40";
           setState((prevState) => {
             return { ...prevState, rangeValue: 0.4 };
@@ -127,7 +127,7 @@ function Index(props: IndexProps) {
     // );
     if (
       selectedCosmetic === "Lipstick" ||
-      (selectedCosmetic === "Eye" && optionName === "EYE SHADOW")
+      (selectedCosmetic === "Eye" && optionName === "eye shadow")
     ) {
       setDisplayOptions(cosmetic?.shades || []);
     } else {
@@ -148,8 +148,8 @@ function Index(props: IndexProps) {
       face: false,
       foundation: false,
       blush: false,
-      KajalPattern: "pattern1",
-      eyeLinerPattern: "pattern1",
+      KajalPattern: "",
+      eyeLinerPattern: "",
       lipColor: state.lipColor,
       eyebrowColor: state.eyebrowColor,
       eyeshadowColor: state.eyeshadowColor,
@@ -235,10 +235,10 @@ function Index(props: IndexProps) {
                               : state[option.value];
                           return (
                             <button
-                              className={`py-3 px-4 rounded-xl text-[16px] ${
+                              className={`py-3 px-4 rounded-xl text-[16px] bg-[#FFFFFF80] font-metropolis font-semibold capitalize ${
                                 isSelected
                                   ? "border-[2px] border-[#D99D73] text-[#D99D73]"
-                                  : "border-[2px] border-[#F9EDE3]"
+                                  : "border-[2px] border-[#F9EDE3] text-[#4D4D4D]"
                               } bg-[#FFFFFF80] ${
                                 option?.disabled
                                   ? "opacity-50 cursor-not-allowed"
@@ -283,7 +283,7 @@ function Index(props: IndexProps) {
             </div>
           </div>
           <div
-            className={`w-full flex py-3 px-4 2xl:py-4 2xl:px-7 justify-between items-center self-stretch rounded-xl border-[2px] border-[#F9EDE3] bg-[#F9E5D4] cursor-pointer`}
+            className={`w-full flex py-3 px-4 2xl:py-4 2xl:px-7 justify-between items-center self-stretch rounded-xl bg-[#FFFFFF] cursor-pointer`}
             onClick={() => {
               takeSnapShot();
             }}
