@@ -20,10 +20,12 @@ function Index(props: IndexProps) {
   const { setMakeupState } = props;
 
   const [selectedCosmetic, setSelectedCosmetic] = useState<string>(""); // "Lipstick", "Eye", "Face"
+  const [appliedOptions, setAppliedOptions] = useState<string[]>([]);
+  const [activeButton, setActiveButton] = useState<string>("");
+  const [isUnselected, setIsUnselected] = useState<boolean>(true);
   const [displayOptions, setDisplayOptions] = useState<Option[]>([]);
-  const [selectedOptionId, setSelectedOptionId] = useState<number>(0);
   const [state, setState] = useState<typeof window.makeupState>({
-    lips: true,
+    lips: false,
     lipsType: "",
     eyebrow: false,
     eyeshadow: false,
@@ -35,7 +37,7 @@ function Index(props: IndexProps) {
     KajalPattern: "",
     lipColor: [0, 0, 0, 0],
     eyebrowColor: [0, 0, 0, 15],
-    eyeshadowColor: [179, 44, 39, 20],
+    eyeshadowColor: [0, 0, 0, 15],
   } as typeof window.makeupState);
 
   const hexToRGBA = (hex: string) => {
@@ -60,7 +62,7 @@ function Index(props: IndexProps) {
         cosmetic?.shades[0]?.color as string
       ) as ColorTuple;
       setState((prevState) => {
-        return { ...prevState, lipColor: lipColor };
+        return { ...prevState, lips: true, lipColor: lipColor };
       });
     }
   }, [state.lipsType]);
@@ -68,20 +70,22 @@ function Index(props: IndexProps) {
   useEffect(() => {
     if (selectedCosmetic === "Eye") {
       const cosmetic = cosmeticsData.find((c) => c.name === selectedCosmetic);
-      const selectedOption = cosmetic?.options.find(
-        (o) => o.name === "eye shadow"
-      );
-      console.log("selectedOption", selectedOption);
-      console.log("cosmetic", cosmetic);
+
+      setState((prevState) => {
+        return {
+          ...prevState,
+          eyeshadowColor: cosmetic?.shades[0]?.color,
+        };
+      });
     }
-  }, [selectedCosmetic]);
+  }, [state.eyeshadow]);
 
   useEffect(() => {
     let rangeContainer = document.getElementById(
       "range-container"
     ) as HTMLInputElement;
     let rangeInput = document.getElementById("range") as HTMLInputElement;
-    if (selectedCosmetic === "Lipstick") {
+    if (selectedCosmetic === "Lipstick" && state.lips) {
       rangeContainer.style.display = "block";
 
       switch (state.lipsType) {
@@ -121,7 +125,7 @@ function Index(props: IndexProps) {
         return { ...prevState, rangeValue: 0.5 };
       });
     }
-  }, [selectedCosmetic, state.lipsType]);
+  }, [selectedCosmetic, state.lipsType, state.lips]);
 
   useEffect(() => {
     setMakeupState(state);
@@ -136,8 +140,28 @@ function Index(props: IndexProps) {
       } else {
         setDisplayOptions(cosmetic?.shades || []);
       }
-    } else if (selectedCosmetic === "Eye" && optionName === "eye shadow") {
-      setDisplayOptions(cosmetic?.shades || []);
+    } else if (selectedCosmetic === "Eye") {
+      if (optionName === "eye shadow") {
+        setDisplayOptions(cosmetic?.shades || []);
+      } else if (optionName === "eye liner") {
+        if (state.eyeliner) {
+          setDisplayOptions([]);
+        } else {
+          setDisplayOptions(
+            cosmetic?.options.find((o) => o.name === optionName)?.images || []
+          );
+        }
+      } else if (optionName === "kajal") {
+        if (state.kajal) {
+          setDisplayOptions([]);
+        } else {
+          setDisplayOptions(
+            cosmetic?.options.find((o) => o.name === optionName)?.images || []
+          );
+        }
+      } else {
+        setDisplayOptions([]);
+      }
     } else {
       setDisplayOptions(
         cosmetic?.options.find((o) => o.name === optionName)?.images || []
@@ -167,7 +191,12 @@ function Index(props: IndexProps) {
     setDisplayOptions([]);
   };
 
+  // console.log("isUnselected", isUnselected);
   console.log("state", state);
+  console.log("appliedOptions", appliedOptions);
+  useEffect(() => {
+    console.log("activeButton", activeButton);
+  }, [activeButton]);
 
   return (
     <div className="w-full h-full">
@@ -195,14 +224,6 @@ function Index(props: IndexProps) {
                             : cosmetic.name
                         );
                         setDisplayOptions(cosmetic?.shades || []);
-                        setState((prevState) => ({
-                          ...prevState,
-                          lipsType:
-                            selectedCosmetic === cosmetic.name &&
-                            prevState.lipsType
-                              ? ""
-                              : "matte",
-                        }));
                       }}
                     >
                       <span className="flex items-center gap-3 2xl:gap-5">
@@ -227,13 +248,30 @@ function Index(props: IndexProps) {
                       <div className="w-full grid grid-cols-2 gap-3 text-center pb-2">
                         {cosmetic?.options?.map((option) => {
                           const isSelected: boolean =
-                            selectedCosmetic === "Lipstick"
-                              ? state.lipsType === option.value
-                              : state[option.value];
+                            selectedCosmetic === "Lipstick" &&
+                            state.lipsType === option.value;
+
+                          const isApplied: boolean = appliedOptions.includes(
+                            option.name
+                          );
+
+                          // let isSelected: boolean = false;
+
+                          // if (
+                          //   appliedOptions.includes(option?.name) ||
+                          //   state.lipsType === option?.value
+                          // ) {
+                          //   if (option.name === activeButton) {
+                          //     isSelected = true;
+                          //   }
+                          // }
+                          // console.log("isSelected", isSelected);
+
                           return (
                             <button
                               className={`py-3 px-4 rounded-xl text-[16px] bg-[#FFFFFF80] font-metropolis font-semibold capitalize ${
-                                isSelected
+                                isSelected ||
+                                (isApplied && option?.name === activeButton)
                                   ? "border-[2px] border-[#D99D73] text-[#D99D73]"
                                   : "border-[2px] border-[#F9EDE3] text-[#4D4D4D]"
                               } bg-[#FFFFFF80] ${
@@ -243,12 +281,39 @@ function Index(props: IndexProps) {
                               }`}
                               key={option?.id}
                               onClick={() => {
-                                setSelectedOptionId(0); // try to do this thing without extra useState
                                 if (!option?.disabled) {
                                   handleOptionsSelection(
                                     cosmetic?.name,
                                     option?.name
                                   );
+
+                                  if (appliedOptions.includes(option.name)) {
+                                    setActiveButton("");
+                                  } else {
+                                    setActiveButton((prev) =>
+                                      prev === option?.name ? "" : option?.name
+                                    );
+                                  }
+
+                                  // Update appliedOptions
+                                  if (selectedCosmetic !== "Lipstick") {
+                                    if (appliedOptions.includes(option.name)) {
+                                      setIsUnselected(false);
+                                      setAppliedOptions(
+                                        appliedOptions.filter(
+                                          (item) => item !== option.name
+                                        )
+                                      );
+                                    } else {
+                                      setIsUnselected(true);
+
+                                      setAppliedOptions([
+                                        ...appliedOptions,
+                                        option.name,
+                                      ]);
+                                    }
+                                  }
+
                                   if (selectedCosmetic === "Lipstick") {
                                     setState((prevState) => ({
                                       ...prevState,
@@ -279,7 +344,35 @@ function Index(props: IndexProps) {
                                 }
                               }}
                             >
-                              {option.name}
+                              <div className="w-full flex justify-between items-center">
+                                {appliedOptions.includes(option?.name) ||
+                                state.lipsType === option?.value ? (
+                                  <>
+                                    <p>{option?.name}</p>
+                                    <svg
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M5 12.7132L10.0168 17.7247L10.4177 17.0238C12.5668 13.2658 15.541 10.0448 19.1161 7.60354L20 7"
+                                        stroke={
+                                          option.name === activeButton
+                                            ? "#D99D73"
+                                            : "#4D4D4D"
+                                        }
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      />
+                                    </svg>
+                                  </>
+                                ) : (
+                                  <p>{option?.name}</p>
+                                )}
+                              </div>
                             </button>
                           );
                         })}
@@ -323,7 +416,7 @@ function Index(props: IndexProps) {
             </span>
           </div>
           {/* Check conditions for showing shades */}
-          {(selectedCosmetic === "Lipstick" ||
+          {((selectedCosmetic === "Lipstick" && state.lipsType) ||
             (selectedCosmetic === "Eye" && state.eyeshadow)) &&
             displayOptions.length > 0 && (
               <div className="z-50 w-full absolute left-0 bottom-4 px-[10%] py-4 flex flex-col">
@@ -378,7 +471,6 @@ function Index(props: IndexProps) {
                       <div
                         key={index}
                         onClick={() => {
-                          setSelectedOptionId(option.id); // Track the selected option
                           setState((prevState) => ({
                             ...prevState,
                             [option.label]: option.name,
