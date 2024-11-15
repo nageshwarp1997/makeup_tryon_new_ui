@@ -3,6 +3,7 @@ import { cosmeticsData, Option } from "./data";
 import Header from "./components/Header";
 import { Fragment, useState, useEffect } from "react";
 import {
+  CheckmarkIcon,
   CompareIcon,
   DownIcon,
   PhotoIcon,
@@ -19,10 +20,11 @@ interface IndexProps {
 function Index(props: IndexProps) {
   const { setMakeupState } = props;
 
+  const lipsTypes = ["matte", "shimmer", "glossy", "crayon"];
+
   const [selectedCosmetic, setSelectedCosmetic] = useState<string>(""); // "Lipstick", "Eye", "Face"
   const [appliedOptions, setAppliedOptions] = useState<string[]>([]);
   const [activeButton, setActiveButton] = useState<string>("");
-  const [isUnselected, setIsUnselected] = useState<boolean>(true);
   const [displayOptions, setDisplayOptions] = useState<Option[]>([]);
   const [state, setState] = useState<typeof window.makeupState>({
     lips: false,
@@ -87,6 +89,10 @@ function Index(props: IndexProps) {
     let rangeInput = document.getElementById("range") as HTMLInputElement;
     if (selectedCosmetic === "Lipstick" && state.lips) {
       rangeContainer.style.display = "block";
+
+      if (!lipsTypes.some((type) => type === state.lipsType)) {
+        rangeContainer.style.display = "none";
+      }
 
       switch (state.lipsType) {
         case "matte": {
@@ -191,13 +197,6 @@ function Index(props: IndexProps) {
     setDisplayOptions([]);
   };
 
-  // console.log("isUnselected", isUnselected);
-  console.log("state", state);
-  console.log("appliedOptions", appliedOptions);
-  useEffect(() => {
-    console.log("activeButton", activeButton);
-  }, [activeButton]);
-
   return (
     <div className="w-full h-full">
       {/* Header */}
@@ -255,18 +254,6 @@ function Index(props: IndexProps) {
                             option.name
                           );
 
-                          // let isSelected: boolean = false;
-
-                          // if (
-                          //   appliedOptions.includes(option?.name) ||
-                          //   state.lipsType === option?.value
-                          // ) {
-                          //   if (option.name === activeButton) {
-                          //     isSelected = true;
-                          //   }
-                          // }
-                          // console.log("isSelected", isSelected);
-
                           return (
                             <button
                               className={`py-3 px-4 rounded-xl text-[16px] bg-[#FFFFFF80] font-metropolis font-semibold capitalize ${
@@ -298,15 +285,12 @@ function Index(props: IndexProps) {
                                   // Update appliedOptions
                                   if (selectedCosmetic !== "Lipstick") {
                                     if (appliedOptions.includes(option.name)) {
-                                      setIsUnselected(false);
                                       setAppliedOptions(
                                         appliedOptions.filter(
                                           (item) => item !== option.name
                                         )
                                       );
                                     } else {
-                                      setIsUnselected(true);
-
                                       setAppliedOptions([
                                         ...appliedOptions,
                                         option.name,
@@ -349,25 +333,10 @@ function Index(props: IndexProps) {
                                 state.lipsType === option?.value ? (
                                   <>
                                     <p>{option?.name}</p>
-                                    <svg
-                                      width="24"
-                                      height="24"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                      <path
-                                        d="M5 12.7132L10.0168 17.7247L10.4177 17.0238C12.5668 13.2658 15.541 10.0448 19.1161 7.60354L20 7"
-                                        stroke={
-                                          option.name === activeButton
-                                            ? "#D99D73"
-                                            : "#4D4D4D"
-                                        }
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                      />
-                                    </svg>
+                                    <CheckmarkIcon
+                                      optionName={option?.name}
+                                      activeButton={activeButton}
+                                    />
                                   </>
                                 ) : (
                                   <p>{option?.name}</p>
