@@ -168,6 +168,18 @@ const cosmeticsData: CosmeticData[] = [
         name: "eyeshadow",
       },
       { id: 7, label: "EyeShadow - Red", color: "#800000", name: "eyeshadow" },
+      {
+        id: 8,
+        label: "Eyebrow Pencil - Black",
+        color: "#000012",
+        name: "eyebrow",
+      },
+      {
+        id: 9,
+        label: "Eyebrow Pencil - Brown",
+        color: "#2E0007",
+        name: "eyebrow",
+      },
     ],
     path: "eyebrow.png",
   },

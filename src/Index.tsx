@@ -5,10 +5,10 @@ import { Fragment, useState, useEffect } from "react";
 import {
   CheckmarkIcon,
   CompareIcon,
-  DownIcon,
+  ExpandIcon,
   PhotoIcon,
   ResetIcon,
-  UpIcon,
+  ColapsIcon,
 } from "./components/icon";
 import { takeSnapShot } from "./main";
 
@@ -23,9 +23,11 @@ function Index(props: IndexProps) {
   const lipsTypes = ["matte", "shimmer", "glossy", "crayon"];
 
   const [selectedCosmetic, setSelectedCosmetic] = useState<string>(""); // "Lipstick", "Eye", "Face"
+  const [activeIndex, setActiveIndex] = useState<number>(0);
   const [appliedOptions, setAppliedOptions] = useState<string[]>([]);
   const [activeButton, setActiveButton] = useState<string>("");
   const [displayOptions, setDisplayOptions] = useState<Option[]>([]);
+  const [rangeColor, setRangeColor] = useState<string>("#FFFFFF");
   const [state, setState] = useState<typeof window.makeupState>({
     lips: false,
     lipsType: "",
@@ -63,9 +65,14 @@ function Index(props: IndexProps) {
       const lipColor = hexToRGBA(
         cosmetic?.shades[0]?.color as string
       ) as ColorTuple;
-      setState((prevState) => {
-        return { ...prevState, lips: true, lipColor: lipColor };
-      });
+
+      setRangeColor(cosmetic?.shades[0]?.color as string);
+
+      if (lipsTypes.includes(state.lipsType)) {
+        setState((prevState) => {
+          return { ...prevState, lips: true, lipColor: lipColor };
+        });
+      }
     }
   }, [state.lipsType]);
 
@@ -73,15 +80,41 @@ function Index(props: IndexProps) {
     if (selectedCosmetic === "Eye") {
       const cosmetic = cosmeticsData.find((c) => c.name === selectedCosmetic);
 
-      setState((prevState) => {
-        return {
-          ...prevState,
-          eyeshadowColor: cosmetic?.shades[0]?.color,
-        };
-      });
-    }
-  }, [state.eyeshadow]);
+      const cosmeticOption = cosmetic?.options.find(
+        (o) => o.name === activeButton
+      );
 
+      if (cosmeticOption?.name === "eye brow") {
+        const color = cosmetic?.shades.find((s) => s.name === "eyebrow");
+        setState((prevState: any) => {
+          return {
+            ...prevState,
+            eyebrow: true,
+            eyebrowColor: color?.color,
+          };
+        });
+      } else if (cosmeticOption?.name === "eye shadow") {
+        const color = cosmetic?.shades.find((s) => s.name === "eyeshadow");
+        setState((prevState: any) => {
+          return {
+            ...prevState,
+            eyeshadow: true,
+            eyeshadowColor: color?.color,
+          };
+        });
+      }
+    }
+  }, [state.eyeshadow, state.eyebrow]);
+
+  // Update range color
+  useEffect(() => {
+    let rangeContainer = document.getElementById(
+      "range-container"
+    ) as HTMLInputElement;
+    rangeContainer.style.background = `linear-gradient(-90deg, ${rangeColor} 0%, rgba(255, 255, 255, 0.1) 100%)`;
+  }, [state.lipColor]);
+
+  // Active range only when lipstick is selected
   useEffect(() => {
     let rangeContainer = document.getElementById(
       "range-container"
@@ -133,10 +166,12 @@ function Index(props: IndexProps) {
     }
   }, [selectedCosmetic, state.lipsType, state.lips]);
 
+  // Update makeup state
   useEffect(() => {
     setMakeupState(state);
   }, [state]);
 
+  // Handle options selection
   const handleOptionsSelection = (cosmeticName: string, optionName: string) => {
     const cosmetic = cosmeticsData.find((c) => c.name === cosmeticName);
 
@@ -148,7 +183,13 @@ function Index(props: IndexProps) {
       }
     } else if (selectedCosmetic === "Eye") {
       if (optionName === "eye shadow") {
-        setDisplayOptions(cosmetic?.shades || []);
+        setDisplayOptions(
+          cosmetic?.shades.filter((s) => s.name === "eyeshadow") || []
+        );
+      } else if (optionName === "eye brow") {
+        setDisplayOptions(
+          cosmetic?.shades.filter((s) => s.name === "eyebrow") || []
+        );
       } else if (optionName === "eye liner") {
         if (state.eyeliner) {
           setDisplayOptions([]);
@@ -175,6 +216,7 @@ function Index(props: IndexProps) {
     }
   };
 
+  // Handle reset
   const handleReset = () => {
     setState({
       lips: false,
@@ -195,6 +237,10 @@ function Index(props: IndexProps) {
     });
     setSelectedCosmetic("");
     setDisplayOptions([]);
+    setAppliedOptions([]);
+    setActiveButton("");
+    setActiveIndex(0);
+    setRangeColor("#FFFFFF");
   };
 
   return (
@@ -222,7 +268,8 @@ function Index(props: IndexProps) {
                             ? ""
                             : cosmetic.name
                         );
-                        setDisplayOptions(cosmetic?.shades || []);
+                        setActiveIndex(0);
+                        // setDisplayOptions(cosmetic?.shades || []);
                       }}
                     >
                       <span className="flex items-center gap-3 2xl:gap-5">
@@ -237,12 +284,13 @@ function Index(props: IndexProps) {
                       </span>
                       <span className="flex items-center justify-center">
                         {cosmetic?.name === selectedCosmetic ? (
-                          <UpIcon />
+                          <ColapsIcon />
                         ) : (
-                          <DownIcon />
+                          <ExpandIcon />
                         )}
                       </span>
                     </div>
+                    {/* Options */}
                     {cosmetic?.name === selectedCosmetic && (
                       <div className="w-full grid grid-cols-2 gap-3 text-center pb-2">
                         {cosmetic?.options?.map((option) => {
@@ -268,12 +316,16 @@ function Index(props: IndexProps) {
                               }`}
                               key={option?.id}
                               onClick={() => {
+                                setActiveIndex(0); // Reset active index
+
+                                // Check if the option is disabled
                                 if (!option?.disabled) {
                                   handleOptionsSelection(
                                     cosmetic?.name,
                                     option?.name
                                   );
 
+                                  // Toggle active button
                                   if (appliedOptions.includes(option.name)) {
                                     setActiveButton("");
                                   } else {
@@ -298,9 +350,11 @@ function Index(props: IndexProps) {
                                     }
                                   }
 
+                                  // toggle state for lipsType
                                   if (selectedCosmetic === "Lipstick") {
                                     setState((prevState) => ({
                                       ...prevState,
+                                      lips: !state.lips,
                                       lipsType:
                                         state.lipsType === option.value
                                           ? ""
@@ -328,7 +382,8 @@ function Index(props: IndexProps) {
                                 }
                               }}
                             >
-                              <div className="w-full flex justify-between items-center">
+                              {/* Option Name */}
+                              <div className="w-full flex justify-between items-center font-[500]">
                                 {appliedOptions.includes(option?.name) ||
                                 state.lipsType === option?.value ? (
                                   <>
@@ -351,6 +406,7 @@ function Index(props: IndexProps) {
                 ))}
             </div>
           </div>
+          {/* Download Button */}
           <div
             className={`w-full flex py-3 px-4 2xl:py-4 2xl:px-7 justify-between items-center self-stretch rounded-xl bg-[#FFFFFF] cursor-pointer`}
             onClick={() => {
@@ -364,7 +420,7 @@ function Index(props: IndexProps) {
           </div>
         </div>
         {/* Right Part OR Video Section */}
-        <div className="relative w-[70%] rounded-[40px] border-[12px] border-[#F9EDE3]">
+        <div className="relative w-[70%] rounded-[40px] border-[12px] 2xl:border-[15px] border-[#F9EDE3]">
           <div className="absolute w-full h-full inset-0 overflow-hidden -z-1">
             <img
               src="/images/placeholderImage.png"
@@ -374,56 +430,73 @@ function Index(props: IndexProps) {
           </div>
 
           <div className="absolute top-0 right-3 flex flex-col justify-between items-between h-full py-5 px-3">
+            {/* Reset Button */}
             <span
               className="flex justify-center items-center p-3 rounded-full bg-white z-50 cursor-pointer"
               onClick={handleReset}
             >
               <ResetIcon />
             </span>
+            {/* Compare Button */}
             <span className="flex justify-center items-center p-3 rounded-full bg-white z-[51] cursor-not-allowed opacity-50">
               <CompareIcon />
             </span>
           </div>
           {/* Check conditions for showing shades */}
           {((selectedCosmetic === "Lipstick" && state.lipsType) ||
-            (selectedCosmetic === "Eye" && state.eyeshadow)) &&
+            (selectedCosmetic === "Eye" &&
+              (state.eyeshadow || state.eyebrow))) &&
             displayOptions.length > 0 && (
               <div className="z-50 w-full absolute left-0 bottom-4 px-[10%] py-4 flex flex-col">
                 <div className="w-full overflow-x-scroll scrollbar-none flex justify-center gap-6">
                   {displayOptions?.map((option, index) => {
                     if (option.color) {
-                      const rgbaColor = hexToRGBA(option.color) as ColorTuple;
+                      const rgbaColor = hexToRGBA(option.color) as ColorTuple; // Convert hex color to rgba
                       return (
                         <div
                           key={index}
-                          className={`flex items-center justify-center min-w-[48px] min-h-[48px] cursor-pointer rounded-full ${
-                            (
-                              selectedCosmetic === "Lipstick"
-                                ? state.lipColor.join("") === rgbaColor.join("")
-                                : state.eyeshadowColor === option.color
-                            )
-                              ? "border-[2px] border-[#FFFFFF]"
-                              : "border-[2px] border-[#cecdcd]"
+                          className={`flex items-center justify-center min-w-[48px] p-0.5 min-h-[48px] cursor-pointer rounded-full ${
+                            activeIndex === index
+                              ? `border-[3px] 2xl:border-[4px] border-[#FFFFFFE6]`
+                              : "border-[2px] 2xl:border-[3px] border-[#FFFFFF4D]"
                           }`}
                           onClick={() => {
+                            // applying lipstick color
                             if (selectedCosmetic === "Lipstick") {
+                              setRangeColor(option?.color as string);
                               setState((prevState) => ({
                                 ...prevState,
                                 lips: true,
                                 lipColor: rgbaColor,
                               }));
+                              setActiveIndex(index); // Set the shade active index
                             } else {
-                              setState((prevState: any) => ({
-                                ...prevState,
-                                eyeshadow: true,
-                                eyeshadowColor: option.color,
-                              }));
+                              // applying eye shadow color
+                              if (activeButton === "eye shadow") {
+                                setActiveIndex(index);
+
+                                setState((prevState: any) => ({
+                                  ...prevState,
+                                  eyeshadow: true,
+                                  eyeshadowColor: option.color,
+                                }));
+                              } else if (activeButton === "eye brow") {
+                                // applying eye brow color
+                                setActiveIndex(index);
+
+                                setState((prevState: any) => ({
+                                  ...prevState,
+                                  eyebrow: true,
+                                  eyebrowColor: option.color,
+                                }));
+                              }
                             }
                           }}
+                          // setting background color
                           style={{
                             backgroundColor: option.color,
                           }}
-                        ></div>
+                        />
                       );
                     }
                   })}
@@ -431,6 +504,7 @@ function Index(props: IndexProps) {
               </div>
             )}
 
+          {/* Check conditions for showing Images */}
           {selectedCosmetic !== "Lipstick" && displayOptions.length > 0 && (
             <div className="z-50 w-full absolute left-0 bottom-4 px-[10%] py-4 flex flex-col">
               <div className="w-full overflow-x-scroll scrollbar-none flex justify-center gap-6">
@@ -446,9 +520,10 @@ function Index(props: IndexProps) {
                           }));
                         }}
                         className={`border flex items-center justify-center w-[48px] h-[48px] cursor-pointer rounded-full p-1 ${
-                          state[option.label] === option.name
-                            ? "border-[2px] border-[#FFFFFF90] bg-[#FFFFFF]"
-                            : "border-[2px] border-[#FFFFFF30] bg-[#FFFFFF90]"
+                          state[option.label as keyof typeof state] ===
+                          option.name
+                            ? "border-[3px] 2xl:border-[4px] border-[#FFFFFFE6] bg-[#FFFFFFE6]"
+                            : "border-[2px] 2xl:border-[3px] border-[#FFFFFF4D] bg-[#FFFFFF4D]"
                         }`}
                       >
                         <img
@@ -462,8 +537,8 @@ function Index(props: IndexProps) {
               </div>
             </div>
           )}
-          <div className="absolute bottom-0 w-full bg-black h-10 blur-3xl -rotate-[8deg]"></div>
-          <div className="absolute bottom-0 w-full bg-black h-10 blur-3xl rotate-[8deg]"></div>
+          <div className="absolute bottom-0 w-full bg-[#656363] h-10 blur-3xl -rotate-[8deg]" />
+          <div className="absolute bottom-0 w-full bg-[#656363] h-10 blur-3xl rotate-[8deg]" />
         </div>
       </div>
     </div>
